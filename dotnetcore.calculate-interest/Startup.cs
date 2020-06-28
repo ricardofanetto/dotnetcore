@@ -1,7 +1,11 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
+// using Microsoft.OpenApi.Models;
 
 namespace dotnetcore.calculate_interest
 {
@@ -18,10 +22,28 @@ namespace dotnetcore.calculate_interest
     public void ConfigureServices(IServiceCollection services)
     {
       services.AddMvc();
-      services.AddHttpClient("api-interest-rate", config => {
-          config.BaseAddress = new System.Uri("http://localhost:8081");
-          config.DefaultRequestHeaders.Add("Accept", "application/json");
-          config.DefaultRequestHeaders.Add("Content-type", "application/json");
+      services.AddSingleton<IConfiguration>(Configuration);
+      services.AddHttpClient("api-interest-rate", config =>
+      {
+        config.BaseAddress = new Uri(Configuration.GetSection("api-interest-rate:BaseURL").Value);
+        config.DefaultRequestHeaders.Accept.Clear();
+        config.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+      });
+
+      services.AddSwaggerGen(c =>
+      {
+        c.SwaggerDoc("v1",
+            new OpenApiInfo
+            {
+              Title = "Dotnet Core - Api",
+              Version = "v1",
+              Description = "Api feita em dotnet core com c# + docker",
+              Contact = new OpenApiContact
+              {
+                Name = "Ricardo Netto",
+                Url = new Uri("https://github.com/ricardofanetto")
+              }
+            });
       });
     }
 
@@ -32,6 +54,13 @@ namespace dotnetcore.calculate_interest
       {
         app.UseDeveloperExceptionPage();
       }
+
+      //Ativando middlewares para uso do Swagger
+      app.UseSwagger();
+      app.UseSwaggerUI(c =>
+      {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Dotnet Core - Api");
+      });
 
       app.UseMvc();
     }

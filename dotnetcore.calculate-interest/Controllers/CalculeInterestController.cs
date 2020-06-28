@@ -1,48 +1,56 @@
-using System.Collections.Generic;
+
+using System;
 using System.Net.Http;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using dotnetcore.calculate_interest.Models;
 
 namespace dotnetcore.calculate_interest.Controllers
 {
   public class CalculateInterestController : Controller
   {
-    private readonly IHttpClientFactory _clientFactory;
-    public CalculateInterestController(IHttpClientFactory clientFactory)
+    private string urlRepository;
+    public CalculateInterestController(IConfiguration configuration)
     {
-      _clientFactory = clientFactory;
+      this.urlRepository = configuration.GetSection("application:repository").Value;
+    }
 
+    private double GetTaxaJuros(IHttpClientFactory httpClient)
+    {
+      try
+      {
+        HttpClient client = httpClient.CreateClient("api-interest-rate");
+        HttpResponseMessage response = client.GetAsync("/taxaJuros").Result;
+
+        string conteudo = response.Content.ReadAsStringAsync().Result;
+        TaxaResponse result = JsonConvert.DeserializeObject<TaxaResponse>(conteudo);
+        return result.Taxa;
+      }
+      catch (System.Exception)
+      {
+        return 0.00;
+      }
     }
 
     [Route("calculajuros")]
     [HttpGet]
-    public async Task Get(
-      [FromQuery] int valorInicial,
-      [FromQuery] int meses)
+    public CalculoJurosResponse Get(
+      [FromQuery] double valorInicial,
+      [FromQuery] int meses,
+      [FromServices] IHttpClientFactory httpClientFactory)
     {
-      var client = _clientFactory.CreateClient();
-      var response = await client.GetAsync("/taxaJuros");
-
-      if (response.IsSuccessStatusCode)
-      {
-        using (var responseStream = await response.Content.ReadAsStreamAsync())
-        {
-          // PullRequests = await JsonSerializer.DeserializeAsync
-          //               <IEnumerable<GitHubPullRequest>>(responseStream);
-
-        }
-      }
-      // var x = await http.GetAsync("http://localhost:5001/");
-      // return 0.0;
-
+      double taxa = this.GetTaxaJuros(httpClientFactory);
+      double total = valorInicial;
+      for (int i = 0; i < meses; i++) total *= (1 + taxa);
+      return new CalculoJurosResponse(total);
     }
 
-    [Route("showmethecode")]
     [HttpGet]
-    public string GetShowMeTheCode()
+    [Route("showmethecode")]
+    public GitHubResponse GetShowMeTheCode()
     {
-      return "";
+      return new GitHubResponse(this.urlRepository);
     }
   }
 }

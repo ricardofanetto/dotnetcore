@@ -1,13 +1,21 @@
+using dotnetcore.interest_rate.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace dotnetcore.interest_rate.Controllers
 {
   public class InterestRateController : Controller
   {
-    [Route("taxaJuros")]
-    public double Get()
+    private double taxa = 0;
+    public InterestRateController(IConfiguration configuration)
     {
-      return 0.01;
+      double.TryParse(configuration.GetSection("application:tax").Value, out taxa);
+    }
+
+    [Route("taxaJuros")]
+    public JsonResult Get()
+    {
+      return new JsonResult(new TaxaResponse(this.taxa));
     }
   }
 }
