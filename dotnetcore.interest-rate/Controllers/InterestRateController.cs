@@ -13,9 +13,9 @@ namespace dotnetcore.interest_rate.Controllers
     }
 
     [Route("taxaJuros")]
-    public JsonResult Get()
+    public TaxaResponse Get()
     {
-      return new JsonResult(new TaxaResponse(this.taxa));
+      return new TaxaResponse(this.taxa);
     }
   }
 }

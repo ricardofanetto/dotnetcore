@@ -1,9 +1,6 @@
 ﻿{
   "application": {
-    "repository": "https://github.com/ricardofanetto/dotnetcore.git"
-  },
-  "api-interest-rate": {
-    "BaseURL": "http://interestApi:80/"
+    "tax": "0.01"
   },
   "Logging": {
     "IncludeScopes": false,

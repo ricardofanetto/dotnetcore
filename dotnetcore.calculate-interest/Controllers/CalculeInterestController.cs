@@ -18,19 +18,12 @@ namespace dotnetcore.calculate_interest.Controllers
 
     private double GetTaxaJuros(IHttpClientFactory httpClient)
     {
-      try
-      {
-        HttpClient client = httpClient.CreateClient("api-interest-rate");
-        HttpResponseMessage response = client.GetAsync("/taxaJuros").Result;
+      HttpClient client = httpClient.CreateClient("api-interest-rate");
+      HttpResponseMessage response = client.GetAsync("/taxaJuros").Result;
 
-        string conteudo = response.Content.ReadAsStringAsync().Result;
-        TaxaResponse result = JsonConvert.DeserializeObject<TaxaResponse>(conteudo);
-        return result.Taxa;
-      }
-      catch (System.Exception)
-      {
-        return 0.00;
-      }
+      string conteudo = response.Content.ReadAsStringAsync().Result;
+      TaxaResponse result = JsonConvert.DeserializeObject<TaxaResponse>(conteudo);
+      return result.Taxa;
     }
 
     [Route("calculajuros")]

@@ -1,0 +1,8 @@
+{
+  "application": {
+    "repository": "https://github.com/ricardofanetto/dotnetcore.git"
+  },
+  "api-interest-rate": {
+    "BaseURL": "http://localhost:8081/"
+  }
+}

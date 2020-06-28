@@ -3,6 +3,7 @@ version: '3'
 services:
   calculateinterest:
     image: calculate-interest-image
+    container_name: calculateApi
     build:
       context: .
     ports:
@@ -12,6 +13,7 @@ services:
 
   interestrate:
     image: interest-rate-image
+    container_name: interestApi
     build:
       context: .
     ports:
